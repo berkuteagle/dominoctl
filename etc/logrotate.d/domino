@@ -1,0 +1,6 @@
+/var/log/domino {
+rotate 7
+daily
+copytruncate
+compress
+}
