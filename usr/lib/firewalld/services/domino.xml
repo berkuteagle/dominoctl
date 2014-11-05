@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>IBM Domino Server</short>
+  <description>IBM Domino server, a cross platform application server which supports data replication to other servers and clients for offline access</description>
+  <port protocol="tcp" port="1352"/>
+  <port protocol="udp" port="1352"/>
+  <port protocol="tcp" port="3007"/>
+  <port protocol="udp" port="3007"/>
+</service>

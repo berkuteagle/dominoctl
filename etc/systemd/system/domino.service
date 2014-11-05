@@ -1,0 +1,12 @@
+[Unit]
+Description=IBM Domino server
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/sbin/dominoctl start
+ExecStop=/usr/sbin/dominoctl stop
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

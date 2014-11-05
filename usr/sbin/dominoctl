@@ -1,0 +1,74 @@
+#!/bin/bash
+
+. /etc/domino.conf
+
+script_name=$0
+
+function log_error {
+  systemd-cat -p 3 -t $script_name echo $*
+}
+
+function log_warning {
+  systemd-cat -p 4 -t $script_name echo $*
+}
+
+function log_info {
+  systemd-cat -p 6 -t $script_name echo $*
+}
+
+# See if the user that runs this script is root
+if [ `id -u` != 0 ]; then
+  log_error "This script must be run by root only"
+  exit 1
+fi
+
+function start {
+  log_info "Starting IBM Domino server"
+
+  if [ -n "$(pgrep -U $DOM_USER server)" ]; then
+    log_error "Domino server apparently already running."
+    exit 1
+  fi
+
+  su - $DOM_USER -c "cd $DOM_DATA_DIR; $DOM_BIN_DIR/server" >> $DOM_LOG_FILE 2>&1 &
+
+  if [ "$?" -ne "0" ]; then
+    log_error "Failed to start. See the log file: $DOM_LOG_FILE"
+    exit 1
+  fi
+
+  log_info "IBM Domino server started"
+}
+
+function stop {
+  log_info "Stopping IBM Domino server"
+
+  if [ -z "$(pgrep -U $DOM_USER server)" ]; then
+    log_warning "Domino server not running."
+    exit 1
+  fi
+
+  su - $DOM_USER -c "cd $DOM_DATA_DIR; $DOM_BIN_DIR/server -q" >> $DOM_LOG_FILE 2>&1 &
+
+  if [ "$?" -ne "0" ]; then
+    log_error "Failed to stop. See the log file: $DOM_LOG_FILE"
+    exit 1
+  fi
+
+  log_info "IBM Domino server stopped"
+}
+
+case $1 in
+start)
+start
+;;
+stop)
+stop
+;;
+*)
+echo "Usage: $script_name {start|stop}"
+exit 1
+;;
+esac
+
+exit 0
